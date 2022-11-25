@@ -39,6 +39,8 @@ def get_attn(emb, ret):
     return hook
 
 def generate_vxa(image, prompt, idx, time, layer_name, output_mode):
+    if(not isinstance(image, np.ndarray)):
+        return image
     output = image.copy()
     image = image.astype(np.float32) / 255.0
     image = np.moveaxis(image, 2, 0)
@@ -59,7 +61,7 @@ def generate_vxa(image, prompt, idx, time, layer_name, output_mode):
         attn_out = {}
         handle = layer.register_forward_hook(get_attn(emb, attn_out))
         try:
-            model.model.diffusion_model(latent, t, emb)
+            model.apply_model(latent, t, emb)
         finally:
             handle.remove()
 
