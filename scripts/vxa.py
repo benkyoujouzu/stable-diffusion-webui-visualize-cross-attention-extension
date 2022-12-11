@@ -96,23 +96,18 @@ def add_tab():
         with gr.Row():
             with gr.Column():
                 input_image = gr.Image(elem_id="vxa_input_image")
+                vxa_prompt = gr.Textbox(label="Prompt", lines=2, placeholder="Prompt to be visualized")
+                vxa_token_indices = gr.Textbox(value="", label="Indices of tokens to be visualized", lines=2, placeholder="Example: 1, 3 means the sum of the first and the third tokens. 1 is suggected for a single token. Leave blank to visualize all tokens.")
+                vxa_time_embedding = gr.Textbox(value="1.0", label="Time embedding")
+                for n, m in shared.sd_model.named_modules():
+                    if(isinstance(m, CrossAttention)):
+                        hidden_layers[n] = m
+                hidden_layer_names = list(filter(lambda s : "attn2" in s, hidden_layers.keys())) 
+                hidden_layer_select = gr.Dropdown(value=default_hidden_layer_name, label="Cross-attention layer", choices=hidden_layer_names)
+                vxa_output_mode = gr.Dropdown(value="masked", label="Output mode", choices=["masked", "grey"])
+                vxa_generate = gr.Button(value="Visualize Cross-Attention", elem_id="vxa_gen_btn")
             with gr.Column():
                 vxa_output = gr.Image(elem_id = "vxa_output", interactive=False)
-                vxa_generate = gr.Button(value="Visualize Cross-Attention", elem_id="vxa_gen_btn")
-        with gr.Row():
-            vxa_prompt = gr.Textbox(label="Prompt", placeholder="Prompt to be visualized")
-        with gr.Row():
-            vxa_token_indices = gr.Textbox(value="", label="Indices of tokens to be visualized", placeholder="Example: 1, 3 means the sum of the first and the third tokens. 1 is suggected for a single token. Leave blank to visualize all tokens.")
-        with gr.Row():
-            vxa_time_embedding = gr.Textbox(value="1.0", label="Time embedding")
-        with gr.Row():
-            for n, m in shared.sd_model.named_modules():
-                if(isinstance(m, CrossAttention)):
-                    hidden_layers[n] = m
-            hidden_layer_names = list(filter(lambda s : "attn2" in s, hidden_layers.keys())) 
-            hidden_layer_select = gr.Dropdown(value=default_hidden_layer_name, label="Cross-attention layer", choices=hidden_layer_names)
-        with gr.Row():
-            vxa_output_mode = gr.Dropdown(value="masked", label="Output mode", choices=["masked", "grey"])
     
         vxa_generate.click(
             fn=generate_vxa,
@@ -124,3 +119,4 @@ def add_tab():
 
 script_callbacks.on_ui_tabs(add_tab)
 script_callbacks.on_model_loaded(update_layer_names)
+
