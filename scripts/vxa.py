@@ -89,6 +89,9 @@ def generate_vxa(image, prompt, idx, time, layer_name, output_mode):
             for j in range(output.shape[1]):
                 output[i][j] = [img[i // scale][j // scale] * 255.0] * 3
     output = output.astype(np.uint8)
+
+    devices.torch_gc()
+
     return output
 
 def add_tab():     
